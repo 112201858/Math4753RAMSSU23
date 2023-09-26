@@ -1,0 +1,405 @@
+---
+title: "MATH4753RAMSSU23"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{MATH4753RAMSSU23}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.width=7, 
+  fig.height=7,
+  comment = "#>"
+)
+```
+
+$$ $$
+
+```{r setup}
+library(MATH4753RAMSSU23)
+```
+
+$$ $$
+
+# Introduction
+
+The 'MATH4753RAMSSU23' package contains four functions which are useful for working with categorical numerical data in various forms (i.e. one way tables and contingency tables of different dimensions). 
+
+They are:
+
+  1. my1way()
+  
+  2. mycontingency()
+  
+  3. twofish()
+  
+  4. bigfish()
+
+This vignette provides detailed explanation of each function accompanied by working examples using real data.
+
+$$ $$
+
+# my1way()
+
+$$ $$
+
+## Description
+
+The my1way() function is a convenient way to analyze a one way table. It can print various representations of the data (table with margins, probability table, table with expected values, etc..). It can run a Chi.squared test for uniformity. It can produce confidence intervals for individual cell proportions as well as pairwise differences in proportions. It also produces several graphs of the data (e.g.a bar graph showing expected cell counts or a bar graph with confidence intervals). 
+
+The function returns an invisible list so as not to clutter the console with additional input.  The list provides an easy way to access different objects created by the function.  These include a variety of tables, the values from the X-squared test (when test == TRUE), and the confidence intervals.  
+
+Note: Calling the function using default parameters prints a lot to the console. The user can control the amount of information by switching various Boolean operators.
+
+$$ $$
+
+## Arguments
+
+  1. table - A table of data with at most one row and any number of columns.
+  
+  2. alpha - A confidence coefficient (non-negative float between 0 and 1) [default == .05]
+  
+  3. adjusted - Boolean to select Bonferonni corrections [default == TRUE]
+  
+  4. test - Boolean to perform a X-squared test [default == TRUE]
+  
+  5. verbose - Boolean to print primary summary text [default == TRUE]
+  
+  6. visual - Boolean to display visual representations of data [default == TRUE]
+  
+  7. screed - Boolean to print additional information about the data [default == FALSE]
+
+$$ $$
+
+## Usage
+
+```{r eval = FALSE}
+my1way(table,
+       alpha = .05,
+       adjusted = FALSE,
+       test = TRUE,
+       verbose = TRUE,
+       visual = TRUE,
+       screed = FALSE){
+```
+
+$$ $$
+
+## Example
+
+```{r}
+MATH4753RAMSSU23::scan
+```
+
+```{r}
+scan_table <- xtabs(NUMBER ~ CATEGORY, MATH4753RAMSSU23::scan)
+```
+
+First observe the function run with default settings.
+
+```{r}
+MATH4753RAMSSU23::my1way(scan_table)
+```
+
+Setting all output related Booleans to FALSE yields no output
+
+```{r}
+MATH4753RAMSSU23::my1way(scan_table,
+                         test = FALSE,
+                         verbose = FALSE,
+                         visual = FALSE,
+                         screed = FALSE)
+```
+
+Running the same again except this time storing the list returned by the function in an object
+
+```{r}
+scan_results <- MATH4753RAMSSU23::my1way(scan_table,
+                                         test = FALSE,
+                                         verbose = FALSE,
+                                         visual = FALSE,
+                                         screed = FALSE)
+```
+
+Having stored the invisible table, it's now straightforward to explore its contents using standard syntax,
+
+```{r}
+scan_results$Mtable
+```
+
+```{r}
+scan_results$CIs
+```
+
+$$ $$
+
+# mycontingency()
+
+$$ $$
+
+## Description
+
+The mycontingency() function is a convenient way to analyze a two way tables. Like my1way() it can print visual representations of the data and it can run a Chi.squared test for independence. 
+
+The function also returns an invisible list so as not to clutter the console with additional input.  The list provides an easy way to access different objects created by the function.  These include a variety of tables and the values from the X-squared test.  
+
+The function checks the primary assumption underpinning the Chi-square test (that the estimated expected value of each cell is greater than 5).  If the assumption does not hold, then function performs the test anyway, but it is advisable to use one of the functions that deploy Fisher's exact test.
+
+Note: Once again, the user can control the amount of information by switching various Boolean operators.
+
+$$ $$
+
+## Arguments
+
+  1. table - A table of data with at most one row and any number of columns.
+  
+  2. alpha - A confidence coefficient (non-negative float between 0 and 1) [default == .05]
+  
+  3. yates - Boolean to toggle on/off a Yates correction [default == TRUE]
+  
+  4. verbose - Boolean to print primary summary text [default == TRUE]
+  
+  5. visual - Boolean to display visual representations of data [default == TRUE]
+
+$$ $$
+
+## Usage
+
+```{r eval = FALSE}
+mycontingency(table,
+              alpha = .05,
+              yates = TRUE,
+              verbose = TRUE,
+              visual = TRUE)
+```
+
+$$ $$
+
+## Example
+
+```{r}
+MATH4753RAMSSU23::hybrid
+```
+
+```{r}
+hybrid_table <- xtabs(Number ~ Model + Claim, data = hybrid)
+```
+
+First observe the function run with default settings.
+
+```{r}
+MATH4753RAMSSU23::mycontingency(hybrid_table)
+```
+
+Setting all output related Boolean parameters to FALSE yields only the output from the test
+
+```{r}
+MATH4753RAMSSU23::mycontingency(hybrid_table,
+                                alpha = .05,
+                                yates = FALSE,
+                                verbose = FALSE,
+                                visual = FALSE)
+```
+
+Running the same again except this time storing the list returned by the function in an object
+
+```{r}
+hybrid_results <- MATH4753RAMSSU23::mycontingency(hybrid_table,
+                                                  alpha = .05,
+                                                  yates = FALSE,
+                                                  verbose = FALSE,
+                                                  visual = FALSE)
+```
+
+Having stored the invisible table, it's now straightforward to explore its contents using standard syntax,
+
+```{r}
+hybrid_results$Contingency.Table
+```
+
+```{r}
+hybrid_results$test.vals
+```
+
+$$ $$
+
+# twofish()
+
+$$ $$
+
+## Description
+
+The twofish() function applies fisher's exact test to 2x2 contingency tables. It is useful when your data violates the necessary assumptions for applying the chi-squared test for independence. It prints information about the test, a sample estimate of odds ratio, and the computed p-value. It also prints a mosaic plot to aid in data visualization and a bar graph showing expected cell counts for visual confirmation of assumption violation. 
+
+Like the other functions, the user can elect whether or not they want to print plots and summary text.
+
+The function returns an invisible list so as not to clutter the console with additional input.  The list provides an easy way to access different objects created by the function.  These include a variety of tables, the p-value, and the sample estimate of odds ratio.  
+
+$$ $$
+
+## Arguments
+
+  1. table - A table of data with at most one row and any number of columns.
+  
+  2. alpha - A confidence coefficient (non-negative float between 0 and 1) [default == .05]
+  
+  3. alt - 'greater', 'less', or 'two.sided' modify the alternative hypothesis [default == greater]
+  
+  4. verbose - Boolean to print primary summary text [default == TRUE]
+  
+  5. visual - Boolean to display visual representations of data [default == TRUE]
+
+$$ $$
+
+## Usage
+
+```{r eval = FALSE}
+twofish(table,
+        alpha = .05,
+        alt = 'greater',
+        verbose = TRUE,
+        visual = TRUE)
+```
+
+$$ $$
+
+## Example
+
+Constructing some data to use for example
+
+```{r}
+# Classic data used by Fisher
+TeaTasting <-
+matrix(c(3, 1, 1, 3),
+       nrow = 2,
+       dimnames = list(Guess = c("Milk", "Tea"),
+                       Truth = c("Milk", "Tea")))
+```
+
+Viewing the data
+
+```{r}
+TeaTasting
+```
+
+Calling twofish() with default settings
+```{r}
+twofish(TeaTasting)
+```
+
+Switching output Boolean parameters
+```{r}
+twofish(TeaTasting,
+        verbose = FALSE, 
+        visual = FALSE)
+```
+
+Switching output Boolean parameters and saving return as object
+```{r}
+result <- twofish(TeaTasting,
+                  verbose = FALSE, 
+                  visual = FALSE)
+```
+
+Accessing list contents
+```{r}
+result$p.value
+```
+
+$$ $$
+
+# bigfish()
+
+$$ $$
+
+## Description
+
+The bigfish() function applies fisher's exact test to any size (rxc) contingency tables. Like twofish(), it is useful when your data violates the necessary assumptions for applying the chi-squared test for independence. Unlike twofish(), it only has one option for an alternative hypothesis. Calling the function prints summary text related to the test. It also prints a mosaic plot to aid in data visualization and a line graph showing the results of the p-value simulation. 
+
+Like the other functions, the user can elect whether or not they want to print plots and restrict the summary text.
+
+The function returns an invisible list so as not to clutter the console with additional input.  The list provides an easy way to access different objects created by the function.  These include a variety of tables, the vector of simulated p-values, and the mean simulated p-value.  
+
+$$ $$
+
+## Arguments
+
+  1. table - A table of data with at most one row and any number of columns.
+  
+  2. alpha - A confidence coefficient (non-negative float between 0 and 1) [default == .05]
+  
+  3. sim_lower - A lower bound for number of iterations used to simulate p-value (default = 1000)
+  
+  4. sim_upper - An upper bound for number of iterations used to simulate p-value (default = 2000)
+  
+  5. verbose - Boolean to print primary summary text [default == TRUE]
+  
+  6. visual - Boolean to display visual representations of data [default == TRUE]
+
+$$ $$
+
+## Usage
+
+```{r eval = FALSE}
+bigfish(table,
+        alpha = .05,
+        sim_lower = 1000,
+        sim_upper = 5000,
+        verbose = TRUE,
+        visual = TRUE)
+```
+
+$$ $$
+
+## Example
+
+```{r}
+MATH4753RAMSSU23::bond
+```
+
+```{r}
+bond_table <- xtabs(NUMBER ~ ADHESIVE + ARIScore, bond)
+```
+
+First observe the function run with default settings.
+
+```{r}
+MATH4753RAMSSU23::bigfish(bond_table)
+```
+
+Setting all output related Boolean parameters to FALSE yields only the output from the test
+
+```{r}
+MATH4753RAMSSU23::bigfish(bond_table,
+                          verbose = FALSE,
+                          visual = FALSE)
+```
+
+Running the same again except this time storing the list returned by the function in an object
+
+```{r}
+bond_results <- MATH4753RAMSSU23::bigfish(bond_table,
+                                          verbose = FALSE,
+                                          visual = FALSE)
+```
+
+Having stored the invisible table, it's now straightforward to explore its contents using standard syntax,
+
+```{r}
+bond_results$Contingency.Table
+```
+
+```{r}
+bond_results$p.mean
+```
+
+
+# Conclusion
+
+The examples above show some but not all combinations of parameters. The design choices behind each function try to balance information abundance with usability.  Whenever possible, the functions provide analysis, commentary, and visualization to complement the computed values corresponding to each test. Some users will require less output and some will desire more.  Accordingly, many options are made available through Boolean parameters and invisible lists.
+
+
+
